@@ -42,6 +42,15 @@ double dist(int i, int j)
     return sqrt(dx*dx + dy*dy);
 }
 
+double tourLen(){
+    double total;
+    for(int i = 0; i < N; i++) {
+        total += dist(i, i+1);
+    }
+    return total;
+}
+
+
 bool refine(double &len)
 {
     //Implement this function
@@ -58,18 +67,17 @@ bool refine(double &len)
     //tour length beyond a minimum threshold
 
     //iterate through each pair of edges in the tour
-    for(int i = 0; i < N; i++)
-    {
-        for(int j = i+2; j < N; j++)
-        {
+    for(int i = 0; i < N; i++) {
+        double currEdgeLen = dist(i, i+1);
+
+        for(int j = i+2; j < N; j++) {
+            double newEdgeLen = dist(j, j+1);
+
             //check if there is a decrease in tour length by replacing these edges with their diagonals
-            double new_len = len - dist(i, i+1) - dist(j, j+1) + dist(i, j) + dist(i+1, j+1);
-            if(new_len < len)
-            {
+            if(currEdgeLen + newEdgeLen > dist(i, j) + dist(i+1, j+1)) {
                 //swap these edges for their diagonals
                 swap(P[i+1], P[j]);
-                cout << "Swapped " << cityNames[cities[P[i+1]]] << " with " << cityNames[cities[P[j]]] << "\n";
-                len = new_len;
+                len = tourLen();
                 return true;
             }
         }
@@ -96,41 +104,30 @@ double tspRefine()
         swap(P[i], P[j]);
     }
 
-    cout << "Initial tour:\n";
-    cout << cityNames[cities[P[0]]] << endl;
-
     double new_len = 0;
     //First calculate the length of this randomly generated tour
-    for(int i = 0; i < N; i++) //calculate length of tour
-    {
-        cout << "\tDistance: " << dist(i, i+1) << "\n";
-        new_len += dist(i, i+1);
-        cout << cityNames[cities[P[i+1]]] << endl;
-    }
-    cout << "\nInitial length: " << new_len << "\n";
+    new_len = tourLen();
+
     //Then run refine() to rearrange the ordering of the cities in the
     //tour until refine() returns false
    
-    while(refine(new_len))
-    {
-        cout << "New length: " << new_len << "\n";
+    while(refine(new_len)) {   
+    //do nothing    
     }
+
     //Finally, if final tour length < best_len replace best with the
     //current tour (P) and update best_len
-    if(new_len < best_len)
-    {
+    if(new_len < best_len) {
         best = P;
         best_len = new_len;
     }
 
-    for (auto p : best) cout << cityNames[cities[p]] << endl;
-    cout << "\nTotal length: " << best_len << "\n";
     return best_len;
 }
 
-int main(void)
+/*int main(void)
 {
   double best_len = 999999999;
   best_len=tspRefine();
   return 0;
-}
+}*/
